@@ -1,5 +1,5 @@
-FROM       ubuntu:17.10
-MAINTAINER Aleksandar Diklic "https://github.com/rastasheep"
+FROM       ubuntu:16.04
+MAINTAINER leenchan
 
 RUN apt-get update
 
