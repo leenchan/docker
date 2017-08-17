@@ -1,2 +1,2 @@
 # docker-ubuntu-ssh
-Ubuntu 16.10
+Ubuntu 16.04
