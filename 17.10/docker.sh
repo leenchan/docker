@@ -212,6 +212,18 @@ install_nginx() {
 	include $NGINX_ADDON/*.conf;
 	}
 	EOF
+
+	supervisor_nginx
+}
+
+supervisor_nginx() {
+	cat <<-EOF > /etc/supervisor/conf.d/nginx.conf
+	[program:nginx]
+	command=nginx -c /etc/nginx/nginx.conf
+	user=root
+	autorestart=true
+	priority=30
+	EOF
 }
 
 build_aria2() {
