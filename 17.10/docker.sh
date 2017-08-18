@@ -263,6 +263,8 @@ build_aria2() {
 }
 
 install_aria2() {
+	build_aria2
+
 	which aria2c &>/dev/null || {
 		apt-get install -y --no-install-recommends aria2 || return 1
 	}
@@ -310,7 +312,7 @@ install_aria2() {
 	seed-time=0
 	EOF
 
-	[ $ARIA2_BUILD = '1' ] && {
+	[ "$ARIA2_BUILD" = '1' ] && {
 		sed -e 's/max-concurrent-downloads=.*/max-concurrent-downloads=1024/' -e 's/^split=.*/split=1024/' -i /etc/aria2/aria2.conf
 	}
 
@@ -322,7 +324,7 @@ install_aria2() {
 
 	supervisor_aria2
 
-	mv $NGINX_ADDON/aria2 $NGINX_ADDON/aria2.conf && nginx -s reload
+	mv $NGINX_ADDON/aria2 $NGINX_ADDON/aria2.conf
 }
 
 supervisor_aria2() {
