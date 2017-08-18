@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="IE=edge">
+	<title>Nginx Directory</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#000000"> 
+	<script type="text/javascript" src="/fancyindex/js/jquery-3.1.1.min.js"></script>
+<!--		 <script src="https://use.fontawesome.com/1834201262.js"></script> -->
+	<link rel="stylesheet" href="/fancyindex/css/styles.css">
+	<script>
+        $.ajaxSetup({
+            cache: true
+        });
+		var createIndex = function() {
+			var index=$.trim($('#index').text()).split('/');
+			var lastIndex='',d='<span>/</span>',indexs=d;
+			for (i in index){
+				if (index[i]!=''){
+					lastIndex+=index[i]+'/';
+					indexs+='<a href="/'+lastIndex+'">'+index[i]+'</a>'+d;
+				}
+			}
+			$('#index').html($.trim(indexs));
+			$('#list tr:first-child td:first-child a').text('..');
+		}
+		var showPOP = function(data){
+			$('body').attr('style','overflow: hidden;');
+			$('#popup .pop-body').append(data);
+			$('#popup').fadeIn();
+		}
+		var hidePOP = function(){
+			$('#popup').fadeOut(function(){
+				$('#popup .pop-body').html('<span class="spinner"></span>');
+				$('body').removeAttr('style');
+			});
+		}
+        var webTorrent = function(url) {
+            document.getElementById('videoIframe').contentWindow.playVideo(url);
+        }
+		var hrefTarget = function() {
+			$("#list td a").not("[href$='/']").each(function(){
+				$(this).click(function(){
+					var ext=$(this).text().slice(($(this).text().lastIndexOf(".") - 1 >>> 0) + 2)
+					switch (ext) {
+						case 'mp4':
+						case 'mkv':
+						case 'avi':
+							showPOP('<video controls autoplay><source src="'+$(this).attr('href')+'" type="video/mp4"></video>');
+							return false;
+                        case 'mp3':
+                            showPOP('<audio controls autoplay><source src="'+$(this).attr('href')+'" type="audio/mpeg"></audio>');
+                            return false;
+                        case 'wav':
+                            showPOP('<audio controls autoplay><source src="'+$(this).attr('href')+'" type="audio/wav"></audio>');
+                            return false;
+                        case 'ogg':
+                            showPOP('<audio controls autoplay><source src="'+$(this).attr('href')+'" type="audio/ogg"></audio>');
+                            return false;
+                        case 'torrent':
+                        	var href=this.href;
+                        	var filename=decodeURI(href.slice((href.lastIndexOf("/") - 1 >>> 0) + 2));
+                            showPOP('<div id="hero"> <div id="output"> <div id="progressBar"></div> </div> <div id="status"> <div> <span class="show-leech">Downloading </span> <span class="show-seed">Seeding </span> <code> <a id="torrentLink" href="'+href+'">'+filename+'</a> </code> <span class="show-leech"> from </span> <span class="show-seed"> to </span> <code id="numPeers">0 peers</code>. </div> <div> <code id="downloaded"></code> of <code id="total"></code> — <span id="remaining"></span><br/> &#x2198;<code id="downloadSpeed">0 b/s</code> / &#x2197;<code id="uploadSpeed">0 b/s</code> </div> </div> </div>');
+                            $.when(
+                                $.getScript("https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"),
+                                $.getScript("/fancyindex/js/moment.min.js")
+                            ).done(function(){
+                                $('#hero').append('\<script\> function playVideo(url) {var torrentId = url; var client = new WebTorrent(); var $body = document.body; var $progressBar = document.querySelector("#progressBar"); var $numPeers = document.querySelector("#numPeers"); var $downloaded = document.querySelector("#downloaded"); var $total = document.querySelector("#total"); var $remaining = document.querySelector("#remaining"); var $uploadSpeed = document.querySelector("#uploadSpeed"); var $downloadSpeed = document.querySelector("#downloadSpeed"); client.add(torrentId, function (torrent) {torrent.files[0].appendTo("#output"); torrent.on("done", onDone); setInterval(onProgress, 500); onProgress(); function onProgress () {$numPeers.innerHTML = torrent.numPeers + (torrent.numPeers === 1 ? " peer" : " peers"); var percent = Math.round(torrent.progress * 100 * 100) / 100; $progressBar.style.width = percent + "%"; $downloaded.innerHTML = prettyBytes(torrent.downloaded); $total.innerHTML = prettyBytes(torrent.length); var remaining; if (torrent.done) {remaining = "Done."; } else {remaining = moment.duration(torrent.timeRemaining / 1000, "seconds").humanize(); remaining = remaining[0].toUpperCase() + remaining.substring(1) + " remaining."; } $remaining.innerHTML = remaining; $downloadSpeed.innerHTML = prettyBytes(torrent.downloadSpeed) + "/s"; $uploadSpeed.innerHTML = prettyBytes(torrent.uploadSpeed) + "/s"; } function onDone () {$body.className += " is-seed"; onProgress(); } }); function prettyBytes(num) {var exponent, unit, neg = num < 0, units = ["B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]; if (neg) {num = -num;} if (num < 1) {return (neg ? "-" : "") + num + " B";} exponent = Math.min(Math.floor(Math.log(num) / Math.log(1000)), units.length - 1); num = Number((num / Math.pow(1000, exponent)).toFixed(2)); unit = units[exponent]; return (neg ? "-" : "") + num + " " + unit; } } \<\/script\>');
+                                playVideo(href);
+                            });
+                            // showPOP('<iframe id="videoIframe" src="/fancyindex/webtorrent.html" frameborder="0" onload=webTorrent("'+this.href+'")></iframe>');
+                            return false;
+						case 'jpg':
+                        case 'jpeg':
+						case 'gif':
+						case 'png':
+						case 'svg':
+							showPOP('<img src="'+$(this).attr('href')+'">');
+							return false;
+						default:
+							return;
+					}
+				});
+			})
+		}
+		$(document).ready(function(){
+			$('#popup .close').click(function(){
+                // client.destroy();
+				hidePOP();
+			});
+			hrefTarget();
+			createIndex();
+			var t=$("#list tr");$("#s").keyup(function(){var i,e="^(?=.*"+$.trim($(this).val()).split(/\s+/).join(")(?=.*")+").*$",n=RegExp(e,"i");t.show().filter(function(){return i=$(this).text().replace(/\s+/g," "),!n.test(i)}).hide()})
+		});
+</script>
+</head>
+<body>
+<header class="header">
+	<div class="wrapper">
+		<a href="http://www.nginx.org" class="logo"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjwhLS0gQ3JlYXRlZCB3aXRoIElua3NjYXBlIChodHRwOi8vd3d3Lmlua3NjYXBlLm9yZy8pIC0tPgoKPHN2ZwogICB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iCiAgIHhtbG5zOmNjPSJodHRwOi8vY3JlYXRpdmVjb21tb25zLm9yZy9ucyMiCiAgIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyIKICAgeG1sbnM6c3ZnPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogICB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIKICAgeG1sbnM6c29kaXBvZGk9Imh0dHA6Ly9zb2RpcG9kaS5zb3VyY2Vmb3JnZS5uZXQvRFREL3NvZGlwb2RpLTAuZHRkIgogICB4bWxuczppbmtzY2FwZT0iaHR0cDovL3d3dy5pbmtzY2FwZS5vcmcvbmFtZXNwYWNlcy9pbmtzY2FwZSIKICAgd2lkdGg9IjExNS4xMTg3NSIKICAgaGVpZ2h0PSIyNC4xODcyNzUiCiAgIGlkPSJzdmcyIgogICB2ZXJzaW9uPSIxLjEiCiAgIGlua3NjYXBlOnZlcnNpb249IjAuNDguMy4xIHI5ODg2IgogICBzb2RpcG9kaTpkb2NuYW1lPSJuZ2lueF9sb2dvX3JlbGVhc2Uuc3ZnIj4KICA8ZGVmcwogICAgIGlkPSJkZWZzNCIgLz4KICA8c29kaXBvZGk6bmFtZWR2aWV3CiAgICAgaWQ9ImJhc2UiCiAgICAgcGFnZWNvbG9yPSIjZmZmZmZmIgogICAgIGJvcmRlcmNvbG9yPSIjNjY2NjY2IgogICAgIGJvcmRlcm9wYWNpdHk9IjEuMCIKICAgICBpbmtzY2FwZTpwYWdlb3BhY2l0eT0iMC4wIgogICAgIGlua3NjYXBlOnBhZ2VzaGFkb3c9IjIiCiAgICAgaW5rc2NhcGU6em9vbT0iMi44Mjg0MjcxIgogICAgIGlua3NjYXBlOmN4PSIyMy45NzE4MjIiCiAgICAgaW5rc2NhcGU6Y3k9IjQ4LjIxNzIyNiIKICAgICBpbmtzY2FwZTpkb2N1bWVudC11bml0cz0icHgiCiAgICAgaW5rc2NhcGU6Y3VycmVudC1sYXllcj0ibGF5ZXIxIgogICAgIHNob3dncmlkPSJmYWxzZSIKICAgICBpbmtzY2FwZTp3aW5kb3ctd2lkdGg9IjE5MjAiCiAgICAgaW5rc2NhcGU6d2luZG93LWhlaWdodD0iMTAwMyIKICAgICBpbmtzY2FwZTp3aW5kb3cteD0iMCIKICAgICBpbmtzY2FwZTp3aW5kb3cteT0iMjQiCiAgICAgaW5rc2NhcGU6d2luZG93LW1heGltaXplZD0iMSIKICAgICBmaXQtbWFyZ2luLXRvcD0iMCIKICAgICBmaXQtbWFyZ2luLWxlZnQ9IjAiCiAgICAgZml0LW1hcmdpbi1yaWdodD0iMCIKICAgICBmaXQtbWFyZ2luLWJvdHRvbT0iMCIgLz4KICA8bWV0YWRhdGEKICAgICBpZD0ibWV0YWRhdGE3Ij4KICAgIDxyZGY6UkRGPgogICAgICA8Y2M6V29yawogICAgICAgICByZGY6YWJvdXQ9IiI+CiAgICAgICAgPGRjOmZvcm1hdD5pbWFnZS9zdmcreG1sPC9kYzpmb3JtYXQ+CiAgICAgICAgPGRjOnR5cGUKICAgICAgICAgICByZGY6cmVzb3VyY2U9Imh0dHA6Ly9wdXJsLm9yZy9kYy9kY21pdHlwZS9TdGlsbEltYWdlIiAvPgogICAgICAgIDxkYzp0aXRsZSAvPgogICAgICA8L2NjOldvcms+CiAgICA8L3JkZjpSREY+CiAgPC9tZXRhZGF0YT4KICA8ZwogICAgIGlua3NjYXBlOmdyb3VwbW9kZT0ibGF5ZXIiCiAgICAgaWQ9ImxheWVyMiIKICAgICBpbmtzY2FwZTpsYWJlbD0iVHlwb2dyYXBoeSIKICAgICBzdHlsZT0iZGlzcGxheTpub25lIgogICAgIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0xMS41NjIyNSwtMTEuMTI0MjIpIj4KICAgIDxnCiAgICAgICBpZD0iZzM5MTAiPgogICAgICA8cGF0aAogICAgICAgICBpbmtzY2FwZTpjb25uZWN0b3ItY3VydmF0dXJlPSIwIgogICAgICAgICBpZD0icGF0aDM4NzIiCiAgICAgICAgIGQ9Im0gMy43OTQ2NDI5LDEwLjcxMDM5NSAxNTYuNzg1NzE3MSwwIgogICAgICAgICBzdHlsZT0iZmlsbDpub25lO3N0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoxcHg7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46bWl0ZXI7c3Ryb2tlLW9wYWNpdHk6MSIgLz4KICAgICAgPHBhdGgKICAgICAgICAgaW5rc2NhcGU6Y29ubmVjdG9yLWN1cnZhdHVyZT0iMCIKICAgICAgICAgaWQ9InBhdGgzODcyLTYiCiAgICAgICAgIGQ9Im0gMy42NTUyOTU5LDM1LjczNDMwMiAxNTYuNzg1NzE0MSwwIgogICAgICAgICBzdHlsZT0iZmlsbDpub25lO3N0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoxcHg7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46bWl0ZXI7c3Ryb2tlLW9wYWNpdHk6MSIgLz4KICAgICAgPHBhdGgKICAgICAgICAgaW5rc2NhcGU6Y29ubmVjdG9yLWN1cnZhdHVyZT0iMCIKICAgICAgICAgaWQ9InBhdGgzODcyLTYtOCIKICAgICAgICAgZD0ibSAtMTAuMzU3MTQsMjMuMjIyNDYxIDE1Ni43ODU3MSwwIgogICAgICAgICBzdHlsZT0iZmlsbDpub25lO3N0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoxcHg7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46bWl0ZXI7c3Ryb2tlLW9wYWNpdHk6MSIgLz4KICAgIDwvZz4KICA8L2c+CiAgPGcKICAgICBpbmtzY2FwZTpsYWJlbD0iTGF5ZXIgMSIKICAgICBpbmtzY2FwZTpncm91cG1vZGU9ImxheWVyIgogICAgIGlkPSJsYXllcjEiCiAgICAgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTExLjU2MjI1LC0xMS4xMjQyMikiPgogICAgPHBhdGgKICAgICAgIHN0eWxlPSJmaWxsOm5vbmU7c3Ryb2tlOiMwMDk5MDA7c3Ryb2tlLXdpZHRoOjU7c3Ryb2tlLWxpbmVjYXA6cm91bmQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLW9wYWNpdHk6MTtzdHJva2UtZGFzaGFycmF5Om5vbmUiCiAgICAgICBkPSJtIDE0LjA0NzgzOCwzMi43Mjc1OTIgMCwtMTkuMDY0Njk1IDE5LjA2MjQ5OSwxOS4wNjQ2OTUgMCwtMTkuMDY0Njk1IgogICAgICAgaWQ9InBhdGgyOTk2IgogICAgICAgaW5rc2NhcGU6Y29ubmVjdG9yLWN1cnZhdHVyZT0iMCIKICAgICAgIHNvZGlwb2RpOm5vZGV0eXBlcz0iY2NjYyIgLz4KICAgIDxwYXRoCiAgICAgICBzdHlsZT0iZm9udC1zaXplOm1lZGl1bTtmb250LXN0eWxlOm5vcm1hbDtmb250LXZhcmlhbnQ6bm9ybWFsO2ZvbnQtd2VpZ2h0Om5vcm1hbDtmb250LXN0cmV0Y2g6bm9ybWFsO3RleHQtaW5kZW50OjA7dGV4dC1hbGlnbjpzdGFydDt0ZXh0LWRlY29yYXRpb246bm9uZTtsaW5lLWhlaWdodDpub3JtYWw7bGV0dGVyLXNwYWNpbmc6bm9ybWFsO3dvcmQtc3BhY2luZzpub3JtYWw7dGV4dC10cmFuc2Zvcm06bm9uZTtkaXJlY3Rpb246bHRyO2Jsb2NrLXByb2dyZXNzaW9uOnRiO3dyaXRpbmctbW9kZTpsci10Yjt0ZXh0LWFuY2hvcjpzdGFydDtiYXNlbGluZS1zaGlmdDpiYXNlbGluZTtjb2xvcjojMDAwMDAwO2ZpbGw6IzAwOTkwMDtmaWxsLW9wYWNpdHk6MTtzdHJva2U6bm9uZTtzdHJva2Utd2lkdGg6NTttYXJrZXI6bm9uZTt2aXNpYmlsaXR5OnZpc2libGU7ZGlzcGxheTppbmxpbmU7b3ZlcmZsb3c6dmlzaWJsZTtlbmFibGUtYmFja2dyb3VuZDphY2N1bXVsYXRlO2ZvbnQtZmFtaWx5OlNhbnM7LWlua3NjYXBlLWZvbnQtc3BlY2lmaWNhdGlvbjpTYW5zIgogICAgICAgZD0iTSA0NC42ODc1LDExLjE4NzUgNDQsMTIuNDY4NzUgMzguNjg3NSwyMi4xMjUgMzgsMjMuMzQzNzUgMzguNjg3NSwyNC41NjI1IDQ0LDMzLjkwNjI1IGwgMC43MTg3NSwxLjI4MTI1IDEuNDY4NzUsMCAxMC44NzUsMCAxLjU2MjUsMCAwLjY4NzUsLTEuNDA2MjUgMy45Njg3NSwtOCAxLjc4MTI1LC0zLjYyNSAtNC4wMzEyNSwwIEwgNTAuODc1LDIyLjE4NzUgYyAtMS4zMjA3ODIsLTAuMDE4NjggLTIuNTM1NjA1LDEuMTc5MDg2IC0yLjUzNTYwNSwyLjUgMCwxLjMyMDkxNCAxLjIxNDgyMywyLjUxODY3OSAyLjUzNTYwNSwyLjUgTCA1NywyNy4xNTYyNSBsIC0xLjUsMy4wMzEyNSAtNy44NzUsMCAtMy45MDYyNSwtNi44NzUgMy45Mzc1LC03LjEyNSA4LjM3NzIyMSwwIDEuOTUzMTI1LDQuMDA3ODEyIDUuMDMxMjUsMCAtMy4xNzE4NzUsLTcuNjAxNTYyIC0wLjY4NzUsLTEuNDA2MjUgLTEuNTYyNSwwIC0xMS40MDg0NzEsMCB6IgogICAgICAgaWQ9InBhdGgyOTk2LTAiCiAgICAgICBpbmtzY2FwZTpjb25uZWN0b3ItY3VydmF0dXJlPSIwIgogICAgICAgc29kaXBvZGk6bm9kZXR5cGVzPSJjY2NjY2NjY2NjY2NjY2NzY2NjY2NjY2NjY2NjY2MiIC8+CiAgICA8cGF0aAogICAgICAgc3R5bGU9ImZvbnQtc2l6ZTptZWRpdW07Zm9udC1zdHlsZTpub3JtYWw7Zm9udC12YXJpYW50Om5vcm1hbDtmb250LXdlaWdodDpub3JtYWw7Zm9udC1zdHJldGNoOm5vcm1hbDt0ZXh0LWluZGVudDowO3RleHQtYWxpZ246c3RhcnQ7dGV4dC1kZWNvcmF0aW9uOm5vbmU7bGluZS1oZWlnaHQ6bm9ybWFsO2xldHRlci1zcGFjaW5nOm5vcm1hbDt3b3JkLXNwYWNpbmc6bm9ybWFsO3RleHQtdHJhbnNmb3JtOm5vbmU7ZGlyZWN0aW9uOmx0cjtibG9jay1wcm9ncmVzc2lvbjp0Yjt3cml0aW5nLW1vZGU6bHItdGI7dGV4dC1hbmNob3I6c3RhcnQ7YmFzZWxpbmUtc2hpZnQ6YmFzZWxpbmU7Y29sb3I6IzAwMDAwMDtmaWxsOiMwMDk5MDA7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOm5vbmU7c3Ryb2tlLXdpZHRoOjU7bWFya2VyOm5vbmU7dmlzaWJpbGl0eTp2aXNpYmxlO2Rpc3BsYXk6aW5saW5lO292ZXJmbG93OnZpc2libGU7ZW5hYmxlLWJhY2tncm91bmQ6YWNjdW11bGF0ZTtmb250LWZhbWlseTpTYW5zOy1pbmtzY2FwZS1mb250LXNwZWNpZmljYXRpb246U2FucyIKICAgICAgIGQ9Im0gNzAuMDEzNzgyLDExLjE1NjI1IGMgLTEuMzA4OTg5LDAuMDE2MzkgLTIuNDg1MDg0LDEuMjIyMjYxIC0yLjQ2ODc1LDIuNTMxMjUgbCAwLDYuNTE0NTA5IDUsMCAwLC02LjUxNDUwOSBjIDAuMDE2NTksLTEuMzI5ODIxIC0xLjIwMTQyOSwtMi41NDc4NDMgLTIuNTMxMjUsLTIuNTMxMjUgeiIKICAgICAgIGlkPSJwYXRoMjk5Ni0wLTUiCiAgICAgICBpbmtzY2FwZTpjb25uZWN0b3ItY3VydmF0dXJlPSIwIgogICAgICAgc29kaXBvZGk6bm9kZXR5cGVzPSJjY2NjY2MiIC8+CiAgICA8dXNlCiAgICAgICB4PSIwIgogICAgICAgeT0iMCIKICAgICAgIHhsaW5rOmhyZWY9IiNwYXRoMjk5NiIKICAgICAgIGlkPSJ1c2UzODIwIgogICAgICAgdHJhbnNmb3JtPSJtYXRyaXgoLTEsMCwwLDEsMTExLjEzOTA1LDAuMDQ4NDE2MjMpIgogICAgICAgd2lkdGg9Ijc0NC4wOTQ0OCIKICAgICAgIGhlaWdodD0iMTA1Mi4zNjIyIiAvPgogICAgPGcKICAgICAgIGlkPSJnMzkyMCIKICAgICAgIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAuMTA1ODYyNTEsMC4zMzAxMDIyOCkiPgogICAgICA8cGF0aAogICAgICAgICBzb2RpcG9kaTpub2RldHlwZXM9ImNjIgogICAgICAgICBpbmtzY2FwZTpjb25uZWN0b3ItY3VydmF0dXJlPSIwIgogICAgICAgICBpZD0icGF0aDI5OTYtMSIKICAgICAgICAgZD0ibSAxMDQuOTA5MzUsMTMuMzc0MjA5IDE5LjA4NDgxLDE5LjAxNzg1NiIKICAgICAgICAgc3R5bGU9ImZpbGw6bm9uZTtzdHJva2U6IzAwOTkwMDtzdHJva2Utd2lkdGg6NTtzdHJva2UtbGluZWNhcDpyb3VuZDtzdHJva2UtbGluZWpvaW46cm91bmQ7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2Utb3BhY2l0eToxO3N0cm9rZS1kYXNoYXJyYXk6bm9uZSIgLz4KICAgICAgPHVzZQogICAgICAgICBoZWlnaHQ9IjEwNTIuMzYyMiIKICAgICAgICAgd2lkdGg9Ijc0NC4wOTQ0OCIKICAgICAgICAgdHJhbnNmb3JtPSJtYXRyaXgoLTEsMCwwLDEsMjI4LjkyNTgzLDApIgogICAgICAgICBpZD0idXNlMzg1MSIKICAgICAgICAgeGxpbms6aHJlZj0iI3BhdGgyOTk2LTEiCiAgICAgICAgIHk9IjAiCiAgICAgICAgIHg9IjAiIC8+CiAgICA8L2c+CiAgICA8cGF0aAogICAgICAgc3R5bGU9ImZvbnQtc2l6ZTptZWRpdW07Zm9udC1zdHlsZTpub3JtYWw7Zm9udC12YXJpYW50Om5vcm1hbDtmb250LXdlaWdodDpub3JtYWw7Zm9udC1zdHJldGNoOm5vcm1hbDt0ZXh0LWluZGVudDowO3RleHQtYWxpZ246c3RhcnQ7dGV4dC1kZWNvcmF0aW9uOm5vbmU7bGluZS1oZWlnaHQ6bm9ybWFsO2xldHRlci1zcGFjaW5nOm5vcm1hbDt3b3JkLXNwYWNpbmc6bm9ybWFsO3RleHQtdHJhbnNmb3JtOm5vbmU7ZGlyZWN0aW9uOmx0cjtibG9jay1wcm9ncmVzc2lvbjp0Yjt3cml0aW5nLW1vZGU6bHItdGI7dGV4dC1hbmNob3I6c3RhcnQ7YmFzZWxpbmUtc2hpZnQ6YmFzZWxpbmU7Y29sb3I6IzAwMDAwMDtmaWxsOiMwMDk5MDA7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOm5vbmU7c3Ryb2tlLXdpZHRoOjU7bWFya2VyOm5vbmU7dmlzaWJpbGl0eTp2aXNpYmxlO2Rpc3BsYXk6aW5saW5lO292ZXJmbG93OnZpc2libGU7ZW5hYmxlLWJhY2tncm91bmQ6YWNjdW11bGF0ZTtmb250LWZhbWlseTpTYW5zOy1pbmtzY2FwZS1mb250LXNwZWNpZmljYXRpb246U2FucyIKICAgICAgIGQ9Im0gNzAuMDEzNzgyLDM1LjIwNDA2OSBjIC0xLjMwODk4OSwtMC4wMTYzOSAtMi40ODUwODQsLTEuMjIyMjYxIC0yLjQ2ODc1LC0yLjUzMTI1IGwgMCwtMTAuNDY0MzYzIDUsMCAwLDEwLjQ2NDM2MyBjIDAuMDE2NTksMS4zMjk4MjEgLTEuMjAxNDI5LDIuNTQ3ODQzIC0yLjUzMTI1LDIuNTMxMjUgeiIKICAgICAgIGlkPSJwYXRoMjk5Ni0wLTUtMSIKICAgICAgIGlua3NjYXBlOmNvbm5lY3Rvci1jdXJ2YXR1cmU9IjAiCiAgICAgICBzb2RpcG9kaTpub2RldHlwZXM9ImNjY2NjYyIgLz4KICA8L2c+Cjwvc3ZnPgo=" /></a>
+		<input name="filter" id="s" type="search" placeholder="Search">
+	</div>
+</header>
+<div id="popup" class="popup">
+		<div class="pop-body"><span class="spinner"></span></div>
+		<span class="close" aria-hidden="true">×</span>
+</div>
+<div class="list">
+	<div class="wrapper">
+		<h1 id="index">

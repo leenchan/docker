@@ -1,0 +1,634 @@
+* {
+	font-family: 'Verdana',sans-serif;
+	margin: 0;
+	padding: 0;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+html {
+	color: #61666c;
+	font-weight: 300;
+	font-size: 1em;
+	line-height: 1.2em;
+	min-width: 320px;
+}
+
+a {
+	color: #5f5f5f;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #0bb35f;
+}
+
+.wrapper {
+	margin: 0 auto;
+	padding: 20px 15px;
+	padding-top: 76px;
+	max-width: 1140px;
+}
+
+thead {
+	font-weight: 200;
+	font-size: 1.2em;
+}
+
+h1 {
+	font-weight: 200;
+	text-align: left;
+	font-size: 1.2em;
+	line-height: 1.5em;
+}
+
+input {
+	float: right;
+	position: absolute;
+	right: 0;
+	top: 0;
+	margin: 12px 15px;
+	font-size: 100%;
+	vertical-align: middle;
+	*overflow: visible;
+	line-height: normal;
+	font-family: 'Open Sans',sans-serif;
+	font-size: 12px;
+	font-weight: 300;
+	line-height: 18px;
+	display: inline-block;
+	height: 20px;
+	padding: 4px 6px;
+	font-size: 14px;
+	line-height: 20px;
+	color: #ccc;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	width: 80px;
+	background-color: #444;
+	border: 1px solid #555;
+	-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+	-moz-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+	box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+	-webkit-transition: border linear .2s,box-shadow linear .2s;
+	-moz-transition: border linear .2s,box-shadow linear .2s;
+	-o-transition: border linear .2s,box-shadow linear .2s;
+	transition: border linear .2s,box-shadow linear .2s;
+}
+
+input:focus {
+	outline: 0;
+	background-color: #fff;
+	color: #333;
+	width: 278px;
+	-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075),0 0 8px rgba(0,0,0,0.6);
+	-moz-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075),0 0 8px rgba(0,0,0,0.6);
+	box-shadow: inset 0 1px 1px rgba(0,0,0,0.075),0 0 8px rgba(0,0,0,0.6);
+}
+
+input::-moz-focus-inner {
+	padding: 0;
+	border: 0;
+}
+
+input[type="search"] {
+	display: block;
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	box-sizing: content-box;
+	-webkit-appearance: textfield;
+	-webkit-transition: all 300ms ease-in;
+	-moz-transition: all 300ms ease-in;
+	-ms-transition: all 300ms ease-in;
+	-o-transition: all 300ms ease-in;
+	transition: all 300ms ease-in;
+}
+
+input[type="search"]::-webkit-search-decoration,input[type="search"]::-webkit-search-cancel-button {
+	-webkit-appearance: none;
+}
+
+a.clear,a.clear:link,a.clear:visited {
+	color: #666;
+	padding: 2px 0;
+	font-weight: 400;
+	font-size: 14px;
+	margin: 0 0 0 20px;
+	line-height: 14px;
+	display: inline-block;
+	border-bottom: transparent 1px solid;
+	vertical-align: -10px;
+	-webkit-transition: all 300ms ease-in;
+	-moz-transition: all 300ms ease-in;
+	-ms-transition: all 300ms ease-in;
+	-o-transition: all 300ms ease-in;
+	transition: all 300ms ease-in;
+}
+
+table {
+	border-collapse: collapse;
+	font-size: 0.9em;
+	width: 100%;
+	margin: 20px auto 0;
+} 
+
+tr {
+	outline: 0;
+	border: 0;
+}
+
+tr:hover td {
+	background: #f6f6f6;
+}
+
+td, th {
+	position: relative;
+	padding: 0 15px;
+	outline: 0;
+	border: 0;
+	border-bottom: 1px solid #edf1f5;
+	vertical-align: middle;
+	text-align: left;
+	-webkit-transition: background 300ms ease-in;
+	-moz-transition: background 300ms ease-in;
+	-ms-transition: background 300ms ease-in;
+	-o-transition: background 300ms ease-in;
+	transition: background 300ms ease-in;
+}
+
+th {
+	text-align: left;
+	font-size: .75em;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+td:first-child,th:first-child {
+	text-align: left;
+	word-break: break-all;
+	width: auto !important;
+}
+
+td:nth-child(2),th:nth-child(2) {
+	text-align: left;
+	width: 120px !important;
+}
+
+td:last-child,th:last-child {
+	text-align: right;
+	width: 180px !important;
+}
+
+td .fa { margin-right: 5px; }
+
+td a {
+	padding: 12px 0;
+	display: block;
+}
+
+tr.parent a {
+	color: #9099A3;
+}
+
+.parent a:hover {
+	color: #2a2a2a;
+}
+
+.header {
+	position:fixed; 
+	z-index: 990; 
+	background: #000; 
+	width: 100%; 
+	height: 54px; 
+}
+
+.header .wrapper { 
+	padding-top: 0; 
+	padding-bottom: 0; 
+	position: relative; 
+}
+
+.header .logo img { 
+	margin: 15px 0; 
+}
+
+#index span { 
+	color: #aaa; 
+	margin: 0 8px; 
+}
+
+#footer {
+	margin-top: 20px;
+	font-size:12px;
+	text-align:center;
+}
+
+.popup { position: 
+	fixed; 
+	z-index: 999; 
+	top:0; 
+	left: 0; 
+	right:0; 
+	bottom: 0; 
+	margin:auto; 
+	width:100%; 
+	height:100%; 
+	background-color: rgba(0,0,0,1); 
+	text-align: center; 
+	display: none; 
+}
+
+.popup .close { 
+	cursor: pointer; 
+	font-size: 36px; 
+	text-shadow: -1px -1px 0 #000000, 1px -1px 0 #000000, -1px 1px 0 #000000, 1px 1px 0 #000000, -2px 0 0 #000000, 2px 0 0 #000000, 0 2px 0 #000000, 0 -2px 0 #000000; 
+	line-height: 1; 
+	padding: 10px; 
+	float: right; 
+	color: rgba(255,255,255,0.5); 
+	position: absolute; 
+	top: 0; 
+	right: 0; 
+	z-index: 1000; 
+}
+
+.popup .pop-body { 
+	width: 100%; 
+	height: 100%; 
+	display: block; 
+	position: relative; 
+}
+
+.popup .pop-body img, .popup .pop-body video, .popup .pop-body audio, .popup .pop-body iframe, #hero, .spinner { 
+	position: absolute; 
+	top: 0; 
+	bottom: 0; 
+	left: 0; 
+	right: 0; 
+	margin: auto; 
+	max-height: 100%; 
+	max-width: 100%; 
+}
+
+.popup .pop-body video, .popup .pop-body audio { 
+	width: 100%; 
+}
+
+.popup .pop-body iframe { 
+	width: 100%; 
+	height: 100%; 
+}
+
+.spinner { 
+	display: inline-block; 
+	height: 28px; 
+	width: 28px; 
+	animation: rotate 0.8s infinite linear; 
+	border: 5px solid #0bb35f; 
+	border-right-color: transparent; 
+	border-radius: 50%; 
+}
+
+@keyframes rotate { 
+	0% { transform: rotate(0deg); } 
+	100% { transform: rotate(360deg); }
+}
+
+@media only screen and ( max-width: 767px ) {
+	td:last-child,th:last-child { display: none; }
+	.list .wrapper { padding-left: 0; padding-right: 0; }
+}
+
+#list a[href*="."]:before, #list a[href*="/"]:before,
+#list a[href~="INSTALL"]:before, #list a[href~="README"]:before,
+#list a[href~="CHANGELOG"]:before, #list a[href~="COPYING"]:before {
+	background: url('../images/default.png') left center no-repeat;
+	content: ""; padding: 0 22px 0 0;
+}
+
+#list a[href*="."]:after, #list a[href*="/"]:after {
+	content: "";
+}
+
+#list a[href$="/"]:before, #list a[href*="/?"]:before {
+	background: url('../images/folder.png') left center no-repeat;
+}
+
+#list a[href*="../"]:before {
+	background: url('../images/folder-parent-old.png') left center no-repeat;
+}
+
+/* A P P L I C A T I O N
+~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+#list a[href$=".doc"]:before {
+	background: url('../images/doc.png') left center no-repeat;
+}
+
+#list a[href$=".pdf"]:before {
+	background: url('../images/pdf.png') left center no-repeat;
+}
+
+#list a[href$=".pgp"]:before {
+	background: url('../images/pgp.png') left center no-repeat;
+}
+
+#list a[href$=".xml"]:before {
+	background: url('../images/xml.png') left center no-repeat;
+}
+
+#list a[href$=".xls"]:before {
+	background: url('../images/xls.png') left center no-repeat;
+}
+
+#list a[href$=".ppt"]:before {
+	background: url('../images/ppt.png') left center no-repeat;
+}
+
+#list a[href$=".7z"]:before {
+	background: url('../images/7z.png') left center no-repeat;
+}
+
+#list a[href$=".torrent"]:before {
+	background: url('../images/torrent.png') left center no-repeat;
+}
+
+#list a[href$=".iso"]:before {
+	background: url('../images/iso.png') left center no-repeat;
+}
+
+#list a[href$=".cue"]:before, #list a[href$=".bin"]:before {
+	background: url('../images/bin.png') left center no-repeat;
+}
+
+#list a[href$=".deb"]:before {
+	background: url('../images/deb.png') left center no-repeat;
+}
+
+#list a[href$=".exe"]:before {
+	background: url('../images/default.png') left center no-repeat;
+}
+
+#list a[href$=".swf"]:before {
+	background: url('../images/swf.png') left center no-repeat;
+}
+
+#list a[href$=".tgz"]:before, #list a[href$=".tar.gz"]:before,
+#list a[href$=".tar.xz"]:before {
+	background: url('../images/tgz.png') left center no-repeat;
+}
+
+#list a[href$=".xpi"]:before {
+	background: url('../images/xpi.png') left center no-repeat;
+}
+
+#list a[href$=".apk"]:before {
+	background: url('../images/default.png') left center no-repeat;
+}
+
+#list a[href$=".bat"]:before {
+	background: url('../images/default.png') left center no-repeat;
+}
+
+#list a[href$=".jar"]:before {
+	background: url('../images/jar.png') left center no-repeat;
+}
+
+#list a[href$=".pl"]:before {
+	background: url('../images/pl.png') left center no-repeat;
+}
+
+#list a[href$=".php"]:before {
+	background: url('../images/php.png') left center no-repeat;
+}
+
+#list a[href$=".rar"]:before {
+	background: url('../images/rar.png') left center no-repeat;
+}
+
+#list a[href$=".rpm"]:before {
+	background: url('../images/rpm.png') left center no-repeat;
+}
+
+#list a[href$=".rb"]:before {
+	background: url('../images/rb.png') left center no-repeat;
+}
+
+#list a[href$=".tar"]:before {
+	background: url('../images/tar.png') left center no-repeat;
+}
+
+#list a[href$=".zip"]:before {
+	background: url('../images/zip.png') left center no-repeat;
+}
+
+/* A U D I O
+~~~~~~~~~~~~*/
+#list a[href$=".mp3"]:before,
+#list a[href$=".wma"]:before,
+#list a[href$=".m3u"]:before {
+	background: url('../images/audio.png') left center no-repeat;
+}
+
+#list a[href$=".mpeg"]:before {
+	background: url('../images/mpg.png') left center no-repeat;
+}
+
+#list a[href$=".ogg"]:before {
+	background: url('../images/ogg.png') left center no-repeat;
+}
+
+#list a[href$=".wav"]:before {
+	background: url('../images/wav.png') left center no-repeat;
+}
+
+
+#list a[href$=".flac"]:before {
+	background: url('../images/audio.png') left center no-repeat;
+}
+
+/* I M A G E
+~~~~~~~~~~~~*/
+
+#list a[href$=".bmp"]:before, #list a[href$=".svg"]:before {
+	background: url('../images/image.png') left center no-repeat;
+}
+
+#list a[href$=".gif"]:before {
+	background: url('../images/gif.png') left center no-repeat;
+}
+
+#list a[href$=".jpg"]:before, #list a[href$=".jpeg"]:before {
+	background: url('../images/jpg.png') left center no-repeat;
+}
+
+#list a[href$=".png"]:before {
+	background: url('../images/png.png') left center no-repeat;
+}
+
+#list a[href$=".tiff"]:before {
+	background: url('../images/image.png') left center no-repeat;
+}
+
+#list a[href$=".ico"]:before {
+	background: url('../images/image.png') left center no-repeat;
+}
+
+#list a[href$=".psd"]:before {
+	background: url('../images/image.png') left center no-repeat;
+}
+
+#list a[href$=".xcf"]:before {
+	background: url('../images/image.png') left center no-repeat;
+}
+
+
+/* T E X T
+~~~~~~~~~~*/
+
+#list a[href$=".css"]:before {
+	background: url('../images/css.png') left center no-repeat;
+}
+
+#list a[href$=".htm"]:before, #list a[href$=".html"]:before,
+#list a[href$=".md"]:before {
+	background: url('../images/html.png') left center no-repeat;
+}
+
+#list a[href$=".txt"]:before, #list a[href$=".json"]:before {
+	background: url('../images/txt.png') left center no-repeat;
+}
+
+#list a[href$=".csv"]:before {
+	background: url('../images/csv.png') left center no-repeat;
+}
+
+#list a[href$=".conf"]:before {
+	background: url('../images/conf.png') left center no-repeat;
+}
+
+#list a[href$=".rtf"]:before {
+	background: url('../images/rtf.png') left center no-repeat;
+}
+
+#list a[href$=".bak"]:before {
+	background: url('../images/default.png') left center no-repeat;
+}
+
+#list a[href$=".c"]:before {
+	background: url('../images/c.png') left center no-repeat;
+}
+
+#list a[href$=".cpp"]:before {
+	background: url('../images/cpp.png') left center no-repeat;
+}
+
+#list a[href~="CHANGELOG"]:before {
+	background: url('../images/txt.png') left center no-repeat;
+}
+
+#list a[href~="COPYING"]:before {
+	background: url('../images/txt.png') left center no-repeat;
+}
+
+#list a[href~="INSTALL"]:before {
+	background: url('../images/txt.png') left center no-repeat;
+}
+
+#list a[href$=".java"]:before {
+	background: url('../images/java.png') left center no-repeat;
+}
+
+#list a[href$=".js"]:before {
+	background: url('../images/js.png') left center no-repeat;
+}
+
+#list a[href$=".h"]:before {
+	background: url('../images/c.png') left center no-repeat;
+}
+
+#list a[href$=".py"]:before {
+	background: url('../images/py.png') left center no-repeat;
+}
+
+#list a[href~="README"]:before {
+	background: url('../images/txt.png') left center no-repeat;
+}
+
+#list a[href$=".sh"]:before {
+	background: url('../images/default.png') left center no-repeat;
+}
+
+#list a[href$=".sql"]:before {
+	background: url('../images/sql.png') left center no-repeat;
+}
+
+#list a[href$=".xml"]:before {
+	background: url('../images/xml.png') left center no-repeat;
+}
+
+/* V I D E O
+~~~~~~~~~~~~*/
+
+#list a[href$=".avi"]:before, #list a[href$=".mp4"]:before,
+#list a[href$=".mkv"]:before, #list a[href$=".divx"]:before,
+#list a[href$=".wmv"]:before {
+	background: url('../images/video.png') left center no-repeat;
+}
+
+#output video {
+	width: 100%;
+}
+
+#progressBar {
+	height: 5px;
+	width: 0%;
+	background-color: #35b44f;
+	transition: width .4s ease-in-out;
+}
+
+body.is-seed .show-seed {
+	display: inline;
+}
+
+body.is-seed .show-leech {
+	display: none;
+}
+
+.show-seed {
+	display: none;
+}
+
+#status code {
+	font-size: 90%;
+	font-weight: 700;
+	margin-left: 3px;
+	margin-right: 3px;
+	border-bottom: 1px dashed rgba(255,255,255,0.3);
+}
+
+.is-seed #hero {
+	background-color: #154820;
+	transition: .5s .5s background-color ease-in-out;
+}
+
+#hero {
+	background-color: #2a3749;
+}
+
+#hero #output video {
+	position: relative !important;
+}
+
+#status {
+	color: #fff;
+	font-size: 13px;
+	padding: 5px;
+}
+
+#status a:link, #status a:visited {
+	color: #30a247;
+	text-decoration: none;
+}
