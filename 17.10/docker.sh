@@ -3,6 +3,14 @@
 # Docker Ubuntu
 
 # Genernal Options
+NGINX='1'
+LNMP='1'
+VNC='1'
+ARIA2='1'
+ARIA2_BUILD='1'
+RCLONE='1'
+YOUTUBE_DL='1'
+
 TIMEZONE="Asia/Shanghai"
 USER_NAME='vnc'
 USER_PWD='_123456_'
@@ -18,7 +26,7 @@ PHP_MAX_EXECUTION_TIME='600'
 PHP_POST_MAX_SIZE='100M'
 
 # MySQL
-MYSQL_PWD_DEFAULT='root'
+MYSQL_PWD="$USER_PWD"
 
 # VNC Options
 VNC='1'
@@ -90,9 +98,14 @@ supervisor_ssh() {
 }
 
 install_nginx() {
+	[ "$NGINX" = '1' ] || return 1
+
 	apt-get install -y --no-install-recommends nginx-extras spawn-fcgi fcgiwrap
+
 	mkdir -p /www/html && chown -R www-data:www-data /www
 	mkdir -p $NGINX_ADDON
+	mkdir -p /data/download && chmod -R 777 /data/download
+	ln -s /data/download /www/download
 
 	cp /usr/share/nginx/html/index.html /www/html
 
@@ -200,6 +213,14 @@ install_nginx() {
 	}
 	EOF
 
+	# Download
+	cat <<-EOF >$NGINX_ADDON/download.conf
+	location /dl/ {
+		alias /www/download/;
+		index _no_index;
+	}
+	EOF
+
 	# Default
 	cat <<-EOF >/etc/nginx/sites-enabled/default
 	server {
@@ -225,6 +246,100 @@ supervisor_nginx() {
 	autorestart=true
 	priority=30
 	EOF
+}
+
+install_lnmp() {
+	[ "$LNMP" = '1' ] || return 1
+
+	# MySQL Auto Set Password
+	echo "mysql-server mysql-server/root_password password $MYSQL_PWD"|debconf-set-selections
+	echo "mysql-server mysql-server/root_password_again password $MYSQL_PWD"|debconf-set-selections
+
+	which nginx &>/dev/null || install_nginx
+	apt-get install -y --no-install-recommends \
+	php-fpm \
+	php-mysql php-pgsql php-sqlite3 php-redis php-gd php-odbc \
+	php-curl php-common php-zip php-bz2 php-mcrypt php-mbstring php-intl php-sybase php-pspell php-cli php-bcmath php-interbase php-recode php-readline php-gmp php-pear php-xdebug php-all-dev \
+	php-xml php-xmlrpc php-json php-cgi \
+	php-imap php-soap php-ldap php-fxsl \
+	php-opcache php-apcu \
+	mysql-server mysql-client
+
+	curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+	sed -Ei -e "s/;?cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" \
+	-e "s|;?date\.timezone.*|date.timezone=$TIMEZONE|" \
+	-e "s/.*memory_limit.*/memory_limit=$PHP_MEMORY_LIMIT/" \
+	-e "s/.*upload_max_filesize.*/upload_max_filesize=$PHP_UPLOAD_MAX_FILESIZE/" \
+	-e "s/.*max_file_uploads.*/max_file_uploads=$PHP_MAX_FILE_UPLOADS/" \
+	-e "s/.*post_max_size.*/post_max_size=$PHP_POST_MAX_SIZE/" \
+	-e "s/.*error_reporting\s*=.*/error_reporting=E_ALL/" \
+	-e "s/.*display_errors\s*=.*/display_errors=On/" \
+	-e "s/^;?error_log\s*=.*/error_log=\/var\/logs\/php_errors.log/" \
+	/etc/php/7.0/fpm/php.ini
+
+	sed -Ei -e "s|;?date\.timezone.*|date.timezone=$TIMEZONE|" \
+	/etc/php/7.0/cli/php.ini
+
+	sed -Ei -e "s/;?daemonize\s*=.*/daemonize=yes/" \
+	/etc/php/7.0/fpm/php-fpm.conf
+
+	php_opcache
+	php_apcu
+
+	php_phpmyadmin &
+
+	supervisor_lnmp
+}
+
+supervisor_lnmp() {
+	cat <<-EOF > /etc/supervisor/conf.d/php.conf
+	[program:php]
+	command=php-fpm7.1
+	user=root
+	autorestart=true
+	priority=100
+	EOF
+
+	cat <<-EOF > /etc/supervisor/conf.d/mysql.conf
+	[program:mysql]
+	command=mysqld
+	user=root
+	autorestart=true
+	priority=100
+	EOF
+}
+
+php_phpmyadmin() {
+	DL=$(curl -sSL https://www.phpmyadmin.net/downloads/ 2>/dev/null|grep -Eo 'http[^"]+phpMyAdmin-[0-9.]+-english.tar.(gz|bz2)'|sort -ru|head -n1)
+	[ -z "$DL" ] && return 1
+	FILE_NAME=$(echo "$DL"|sed -E 's|.*/||')
+	curl "$DL" >$FILE_NAME
+	[ -f "$FILE_NAME" ] && {
+		rm -rf /www/phpmyadmin
+		tar -xf $FILE_NAME -C /www && mv /www/$(ls -al|grep -Ei '^d.*phpmyadmin'|head -n1|awk '{print $9}') /www/phpmyadmin
+		rm -f $FILE_NAME
+	}
+}
+
+php_opcache() {
+	find /usr|grep opcache.so &>/dev/null || return 1
+	echo "zend_extension=opcache.so
+opcache.enable=1
+opcache.enable_cli=1
+opcache.fast_shutdown=1
+opcache.memory_consumption=${OPCACHE_MEM_SIZE:-128}
+opcache.interned_strings_buffer=16
+opcache.max_accelerated_files=5413
+opcache.revalidate_freq=60">/etc/php/7.0/fpm/conf.d/10-opcache.ini
+}
+
+php_apcu() {
+	find /usr|grep apcu.so &>/dev/null || return 1
+	echo "extension=apcu.so
+apc.enabled=1
+apc.shm_size=${APC_SHM_SIZE:-128M}
+apc.ttl=7200">/etc/php/7.0/fpm/conf.d/20-apcu.ini
 }
 
 build_aria2() {
@@ -264,6 +379,8 @@ build_aria2() {
 }
 
 install_aria2() {
+	[ "$ARIA2" = '1' ] || return 1
+
 	build_aria2
 
 	which aria2c &>/dev/null || {
@@ -275,12 +392,9 @@ install_aria2() {
 		rm -rf /tmp/aria2ng
 		unzip /tmp/ariang.zip -d /tmp/aria2ng
 		mv -f "/tmp/aria2ng/$(ls /tmp/aria2ng|head -n1)" /www/aria2
-		rm -rf /tmp/aria2ng
+		rm -rf /tmp/ariang.zip
 		chown -R www-data:www-data /www/aria2
 	}
-
-	mkdir -p /data/download && chmod -R 777 /data/download
-	ln -s /data/download /www/download
 
 	mkdir -p /etc/aria2
 	mkdir -p /var/aria2
@@ -340,6 +454,24 @@ supervisor_aria2() {
 	EOF
 }
 
+install_youtube_dl() {
+	[ "$YOUTUBE_DL" = '1' ] || return 1
+
+	curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/sbin/youtube-dl && chmod a+rx /usr/sbin/youtube-dl
+}
+
+install_rclone() {
+	[ "$RCLONE" = '1' ] || return 1
+
+	RCLONE_DL=$(curl -sSL https://rclone.org/downloads/|grep -Eo 'https?://[^"]+v[0-9.]+-linux-amd64\.zip'|head -n1)
+	[ -z "$RCLONE_DL" ] && return 1
+	curl $RCLONE_DL >/tmp/rclone.zip && unzip /tmp/rclone.zip -d /tmp && {
+		mv $(ls -d /tmp/rclone-*)/rclone /usr/sbin/rclone && chmod +x /usr/sbin/rclone
+		rm -rf /tmp/rclone*
+	}
+	mv $NGINX_ADDON/rclone $NGINX_ADDON/rclone.conf
+}
+
 install_timezone() {
 	apt-get install -y --force-yes --no-install-recommends \
 	tzdata
@@ -349,6 +481,7 @@ install_timezone() {
 
 install_vnc() {
 	[ "$VNC" = '1' ] || return 1
+
     apt-get install -y --force-yes --no-install-recommends \
         lxde x11vnc xvfb \
         gtk2-engines-murrine ttf-ubuntu-font-family fonts-wqy-microhei \
@@ -360,7 +493,7 @@ install_vnc() {
 
     # Sublime Text
     SUBLIME_TEXT_URL=$(curl -sSL https://www.sublimetext.com/3|grep -Eo 'https?://[^"]+amd64\.deb')
-    curl -sSL $SUBLIME_TEXT_URL >sublime_text.deb && dpkg -i sublime_text.deb && rm -f sublime_text.deb
+    curl -sSL $SUBLIME_TEXT_URL > /tmp/sublime_text.deb && dpkg -i /tmp/sublime_text.deb && rm -f /tmp/sublime_text.deb
 
 	mkdir -p $HOME_PATH/.x11vnc
 	x11vnc -storepasswd $VNC_PWD $HOME_PATH/.x11vnc/x11vnc.pass
@@ -821,5 +954,8 @@ add_user
 install_ssh
 install_timezone
 install_nginx
+install_lnmp
 install_vnc
 install_aria2
+install_rclone
+install_youtube_dl
