@@ -60,7 +60,7 @@ install_base() {
 install_build_tool() {
 	[ $BUILD_TOOL = '1' ] && return 1
 	apt-get install -y --no-install-recommends \
-	build-essential autotools-dev libltdl-dev libtool autoconf autopoint
+	build-essential autotools-dev libltdl-dev libtool autoconf autopoint automake pkgconf
 	BUILD_TOOL='1'
 }
 
@@ -75,6 +75,7 @@ install_ssh() {
 	ClientAliveInterval 360
 	ClientAliveCountMax 20
 	EOF
+	mkdir -p /run/sshd
 	supervisor_ssh
 }
 
