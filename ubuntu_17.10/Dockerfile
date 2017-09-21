@@ -1,7 +1,7 @@
 FROM       ubuntu:17.10
 MAINTAINER leenchan
 
-RUN sh <(curl https://github.com/leenchan/vps/raw/master/vps.sh) docker
+RUN curl https://github.com/leenchan/vps/raw/master/vps.sh > /usr/bin/vps && chmod +x /usr/bin/vps && /usr/bin/vps docker
 
 ADD run.sh /run.sh
 RUN chmod +x /run.sh
