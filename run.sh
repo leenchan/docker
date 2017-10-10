@@ -52,4 +52,4 @@ run_sh() {
 run
 run_url
 run_sh
-/usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
+$(which supervisord) -n -c /etc/supervisor/supervisord.conf
